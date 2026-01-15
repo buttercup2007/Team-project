@@ -99,36 +99,32 @@ function getCurrentTime() {
     });
 }
 
-// zet vragen hier
-const questions = [
-    "Zijn er voedsel dat allergieën bevatten?",
-    "Hoe moet je iemand rapporteren?",
-    "Hoe werkt de koffiemachine?",
-    "Hoe laat moet ik uit checken?",
-    "Hebben jullie reservaties voor grootte groepen?"
+const chatbotKeywords = [
+    {
+        keywords: ["allergie", "allergieen", "voedsel","eten"],
+        antwoord: "Ja ons voedsel kan sporen van noten en melk bevatten. Heb je een allergie, laat het weten aan onze medewerkers."
+    },
 
-];
+    {
+        keywords: ["rapporteren", "klacht", "bericht", "aanmelden"],
+        antwoord: "Als je iemand wilt rapporteren kan je ons online een bericht sturen of kan je bij de receptie het aanmelden."
+    },
 
-const answers = [
-    "Ja, onze voedsel kunnen sporen van noten en melk bevatten. Als je een allergie hebt laat het aan onze medewerkers weten!",
-    "Als je iemand wilt rapporteren kan je ons online een bericht sturen of kan je bij de receptie het aanmelden.",
-    "Zet een beker in de koffiemachine en klik op het scherm en selecteer wat voor soort coffee u wilt.",
-    "Het restaurant sluit om 8 uur in week dagen en 10 uur op weekends. Zorg ervoor dat u een half uur eerder uitcheckt.",
-    "Ja natuurlijk! Het maximum voor een persoon die komt met een groep is 12 personen inclusief uzelf."
-];
+    {
+        keywords: ["koffiemachine", "koffieapparaat", "koffie"],
+        antwoord: "Zet een beker in de koffiemachine en klik op het scherm en selecteer wat voor soort coffee u wilt."
+    },
 
-let currentIndex = 0;
+    {
+        keywords:["uitchecken", "checkout", "afronden", "afsluiten"],
+        antwoord: "Het restaurant sluit om 8 uur in week dagen en 10 uur op weekends. Zorg ervoor dat u een half uur eerder uitcheckt."
+    },
 
-function showNextQuestion() {
-    if (currentIndex >= questions.length) {
-        messageInput.value = "";
-        sendButton.disabled = true;
-        return;
+    {
+        keywords:["reservatie", "reservaties", "reservering", "boeking"],
+        antwoord: "Ja natuurlijk! Het maximum voor een persoon die komt met een groep is 12 personen inclusief uzelf."
     }
-    messageInput.value = questions[currentIndex];
-    sendButton.disabled = false;
-    messageInput.focus();
-}
+]
 
 function sendUserMessage() {
     const text = messageInput.value.trim();
@@ -139,13 +135,28 @@ function sendUserMessage() {
     sendButton.disabled = true;
 
     showTypingIndicator();
+
     setTimeout(() => {
         hideTypingIndicator();
-        addMessage(answers[currentIndex], 'bot');
-        currentIndex++;
-        showNextQuestion();
-    }, 1000);
+
+        const userText = text.toLowerCase();
+        let response = "Sorry, dat begrijp ik niet helemaal. Kun je je vraag anders formuleren?";
+
+        chatbotKeywords.some(item => {
+            return item.keywords.some(keyword => {
+                if (userText.includes(keyword)) {
+                    response = item.antwoord;
+                    return true;
+                }
+                return false;
+            });
+        });
+
+        addMessage(response, 'bot');
+    }, 800);
 }
+
+
 
 window.addEventListener('load', () => {
     showNextQuestion();
