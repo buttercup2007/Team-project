@@ -1,0 +1,45 @@
+<!--<?php
+session_start(); 
+require "../connection.php";
+
+// Make sure they're logged in
+if (!isset($_SESSION['login'])) { 
+    echo "Access denied. Please enter admin password first and try again.";
+   echo '<meta http-equiv="refresh" content="5;url=index.html">';
+    exit();
+  }
+?> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot Admin | Answer Questions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<!-- code for later =  <input type="hidden" name="question_id" value="5"> -->  <!-- the real ID from the database -->
+<div class="container">
+  <div class="answer-card">
+    <h1>Add New Answer</h1>
+    <p class="subtitle">Fill in the details below to answer the new questions</p>
+
+    <!-- The form that sends the answer of a question to insertfunc.php where it can be saved and sent to the database-->
+    <form action="insertFunc.php" method="POST" class="answer-form">
+      
+      <div class="input-group">
+        <label for="answer">Antwoord toevoegen</label>
+        <input type="text" name="answer" id="answer" placeholder="Type the answer here..." required>
+      </div>
+
+      <button type="submit" class="submit-btn">
+        <span>Add Answer</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>
