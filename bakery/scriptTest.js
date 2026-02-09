@@ -6,6 +6,8 @@ const chatbotWrapper = document.getElementById('chatbotWrapper');
 const minimizeBtn = document.getElementById('minimizeBtn');
 const chatIcon = chatToggle.querySelector('.chat-icon');
 const closeIcon = chatToggle.querySelector('.close-icon');
+const clearChatBtn = document.getElementById('clearChatBtn');
+
 
 let isTyping = false;
 let isOpen = false;
@@ -156,6 +158,22 @@ function sendUserMessage() {
     }, 800);
 }
 
+clearChatBtn.addEventListener('click', () => {
+    messagesContainer.innerHTML = '';
+    isTyping = false;
+});
+
+clearChatBtn.addEventListener('click', () => {
+    if (confirm('Weet je zeker dat je de chat wilt wissen?')) {
+        messagesContainer.innerHTML = '';
+        isTyping = false;
+    }
+});
+
+clearChatBtn.addEventListener('click', () => {
+    messagesContainer.innerHTML = '';
+    addMessage('Hallo! Waarmee kan ik je helpen?', 'bot');
+});
 
 
 window.addEventListener('load', () => {
