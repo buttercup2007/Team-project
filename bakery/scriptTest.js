@@ -8,7 +8,6 @@ const chatIcon = chatToggle.querySelector('.chat-icon');
 const closeIcon = chatToggle.querySelector('.close-icon');
 const clearChatBtn = document.getElementById('clearChatBtn');
 
-
 let isTyping = false;
 let isOpen = false;
 
@@ -41,7 +40,7 @@ messageInput.addEventListener('keydown', (e) => {
 
 sendButton.addEventListener('click', sendUserMessage);
 
-function addMessage(text, sender) {
+function addMessage(text, sender, options = []) {
     const wrapper = document.createElement('div');
     wrapper.className = `message-wrapper ${sender}`;
 
@@ -65,6 +64,26 @@ function addMessage(text, sender) {
     content.appendChild(p);
     content.appendChild(time);
 
+    if (options.length > 0 && sender === 'bot') {
+        const buttonsWrapper = document.createElement('div');
+        buttonsWrapper.className = 'options-wrapper';
+
+        options.forEach(optionText => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = optionText;
+
+            btn.addEventListener('click', () => {
+                messageInput.value = optionText;
+                sendUserMessage();
+            });
+
+            buttonsWrapper.appendChild(btn);
+        });
+
+        content.appendChild(buttonsWrapper);
+    }
+
     if (sender === 'user') {
         message.appendChild(content);
         message.appendChild(avatar);
@@ -78,6 +97,7 @@ function addMessage(text, sender) {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
+// Typing indicator
 function showTypingIndicator() {
     isTyping = true;
     const wrapper = document.createElement('div');
@@ -103,30 +123,51 @@ function getCurrentTime() {
 
 const chatbotKeywords = [
     {
-        keywords: ["allergie", "allergieen", "voedsel","eten"],
-        antwoord: "Ja ons voedsel kan sporen van noten en melk bevatten. Heb je een allergie, laat het weten aan onze medewerkers."
+        keywords: ["allergie", "allergieen", "voedsel","eten", "noten", "melk"],
+        antwoord: "Ja ons voedsel kan sporen van noten en melk bevatten. Heb je een allergie, laat het weten aan onze medewerkers.",
+        options: ["Ja, ik heb een notenallergie", "Nee, ik heb geen allergie"]
     },
-
     {
-        keywords: ["rapporteren", "klacht", "bericht", "aanmelden"],
-        antwoord: "Als je iemand wilt rapporteren kan je ons online een bericht sturen of kan je bij de receptie het aanmelden."
+        keywords: ["rapporteren", "klacht", "bericht", "aanmelden", "probleem", "feedback"],
+        antwoord: "Als je iemand wilt rapporteren kan je ons online een bericht sturen of kan je bij de receptie het aanmelden.",
+        options: ["Online bericht sturen", "Receptie melden"]
     },
-
     {
-        keywords: ["koffiemachine", "koffieapparaat", "koffie"],
-        antwoord: "Zet een beker in de koffiemachine en klik op het scherm en selecteer wat voor soort coffee u wilt."
+        keywords: ["koffiemachine", "koffieapparaat", "koffie", "drank", "espresso"],
+        antwoord: "Zet een beker in de koffiemachine en klik op het scherm en selecteer wat voor soort koffie u wilt.",
+        options: ["Espresso", "Cappuccino", "Latte"]
     },
-
     {
-        keywords:["uitchecken", "checkout", "afronden", "afsluiten"],
-        antwoord: "Het restaurant sluit om 8 uur in week dagen en 10 uur op weekends. Zorg ervoor dat u een half uur eerder uitcheckt."
+        keywords:["uitchecken", "checkout", "afronden", "afsluiten", "vertrekken"],
+        antwoord: "Het restaurant sluit om 8 uur in weekdagen en 10 uur in het weekend. Zorg ervoor dat u een half uur eerder uitcheckt.",
+        options: ["Hoe laat is uitchecken?", "Kan ik later uitchecken?"]
     },
-
     {
-        keywords:["reservatie", "reservaties", "reservering", "boeking"],
-        antwoord: "Ja natuurlijk! Het maximum voor een persoon die komt met een groep is 12 personen inclusief uzelf."
+        keywords:["reservatie", "reservaties", "reservering", "boeking", "tafel", "boek"],
+        antwoord: "Ja natuurlijk! Het maximum voor een persoon die komt met een groep is 12 personen inclusief uzelf.",
+        options: ["Reserveer een tafel", "Wat is de capaciteit?"]
+    },
+    {
+        keywords:["menu", "eten", "gerechten", "lunch", "diner"],
+        antwoord: "U kunt ons menu bekijken op de website of ik kan u enkele suggesties geven.",
+        options: ["Laat me het menu zien", "Wat zijn de specials?"]
+    },
+    {
+        keywords:["openingstijd", "open", "uren", "tijd"],
+        antwoord: "Ons restaurant is geopend van 8:00 tot 22:00 op weekdagen en van 10:00 tot 22:00 in het weekend.",
+        options: ["Openingstijden", "Weekenduren"]
+    },
+    {
+        keywords:["contact", "telefoon", "email", "adres"],
+        antwoord: "U kunt contact met ons opnemen via info@restaurant.nl of bellen naar 012-3456789.",
+        options: ["Email", "Telefoon"]
+    },
+    {
+        keywords:["wifi", "internet", "verbinding"],
+        antwoord: "Er is gratis Wi-Fi beschikbaar. Het wachtwoord staat op uw tafelkaart.",
+        options: ["Wat is het wachtwoord?", "Waar vind ik Wi-Fi?"]
     }
-]
+];
 
 function sendUserMessage() {
     const text = messageInput.value.trim();
@@ -143,39 +184,31 @@ function sendUserMessage() {
 
         const userText = text.toLowerCase();
         let response = "Sorry, dat begrijp ik niet helemaal. Kun je je vraag anders formuleren?";
+        let options = [];
 
         chatbotKeywords.some(item => {
             return item.keywords.some(keyword => {
                 if (userText.includes(keyword)) {
                     response = item.antwoord;
+                    if (item.options) options = item.options;
                     return true;
                 }
                 return false;
             });
         });
 
-        addMessage(response, 'bot');
+        addMessage(response, 'bot', options);
     }, 800);
 }
 
 clearChatBtn.addEventListener('click', () => {
-    messagesContainer.innerHTML = '';
-    isTyping = false;
-});
-
-clearChatBtn.addEventListener('click', () => {
     if (confirm('Weet je zeker dat je de chat wilt wissen?')) {
         messagesContainer.innerHTML = '';
+        addMessage('Hallo! Waarmee kan ik je helpen?', 'bot');
         isTyping = false;
     }
 });
 
-clearChatBtn.addEventListener('click', () => {
-    messagesContainer.innerHTML = '';
-    addMessage('Hallo! Waarmee kan ik je helpen?', 'bot');
-});
-
-
 window.addEventListener('load', () => {
-    showNextQuestion();
+    addMessage('Hallo! Waarmee kan ik je helpen?', 'bot', ["Menu bekijken", "Reservatie maken", "Openingstijden"]);
 });
