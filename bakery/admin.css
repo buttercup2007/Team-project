@@ -3,7 +3,8 @@
   padding: 0;
   box-sizing: border-box;
 }
-/* the main page styles*/
+
+/* the main page styles */
 body {
   font-family: 'Poppins', sans-serif;
   background: #ffffff;
@@ -14,12 +15,14 @@ body {
   justify-content: center;
   padding: 20px;
 }
-/* the form container*/
+
+/* the form container */
 .container {
   width: 100%;
   max-width: 600px;
 }
-/* the form container styles*/
+
+/* the form container styles */
 .answer-card {
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(12px);
@@ -59,7 +62,8 @@ label {
   color: #ff8c00;
 }
 
-input, textarea {
+input,
+textarea {
   width: 100%;
   padding: 16px 20px;
   background: rgba(255, 255, 255, 0.08);
@@ -70,14 +74,16 @@ input, textarea {
   transition: all 0.3s;
 }
 
-input:focus, textarea:focus {
+input:focus,
+textarea:focus {
   outline: none;
   border-color: #ff4500;
   box-shadow: 0 0 0 4px rgba(255, 69, 0, 0.2);
   background: rgba(255, 255, 255, 0.12);
 }
 
-input::placeholder, textarea::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: rgba(255, 255, 255, 0.4);
 }
 
