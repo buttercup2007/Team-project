@@ -15,13 +15,13 @@ if (!isset($_SESSION['login'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot Interfacer</title>
+    <title>Chatbot</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Floating Chat Button -->
     <button id="chatToggle" class="chat-toggle">
-        <span class="chat-icon">💬</span>
+        <span class="chat-icon">x</span>
         <span class="close-icon" style="display: none;">✕</span>
     </button>
 
