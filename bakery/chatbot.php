@@ -10,13 +10,12 @@ if (!isset($_SESSION['login'])) {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot Interface</title>
+    <title>Chatbot Interfacer</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -63,9 +62,6 @@ if (!isset($_SESSION['login'])) {
                         rows="1"
                     ></textarea>
                     <button id="sendButton" class="send-button" disabled>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
                     </button>
                 </div>
             </div>
