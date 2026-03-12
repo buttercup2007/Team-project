@@ -37,16 +37,13 @@ if (!isset($_SESSION['login'])) {
                     <div class="header-info">
                         <h1>Chatbot</h1>
                     </div>
-                    <button class="minimize-btn" id="minimizeBtn">💬</button>
                 </div>
             </div>
 
             <div class="chatbot-messages" id="messagesContainer">
                 <div class="message-wrapper bot">
                     <div class="message bot-message">
-                        <div class="message-avatar">🤖</div>
                         <div class="message-content">
-                            <p>Hallo! Hoe kan ik je helpen?</p>
                             <span class="message-time"></span>
                         </div>
                     </div>
