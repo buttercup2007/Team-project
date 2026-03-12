@@ -21,7 +21,7 @@ if (!isset($_SESSION['login'])) {
 <body>
     <!-- Floating Chat Button -->
     <button id="chatToggle" class="chat-toggle">
-        <span class="chat-icon">x</span>
+        <span class="chat-icon">💬</span>
         <span class="close-icon" style="display: none;">✕</span>
     </button>
 
@@ -37,7 +37,7 @@ if (!isset($_SESSION['login'])) {
                     <div class="header-info">
                         <h1>Chatbot</h1>
                     </div>
-                    <button class="minimize-btn" id="minimizeBtn">−</button>
+                    <button class="minimize-btn" id="minimizeBtn">💬</button>
                 </div>
             </div>
 
