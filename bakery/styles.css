@@ -1,6 +1,4 @@
-/* =====================
-   GLOBAL RESET
-===================== */
+/* global reset */
 
 * {
   margin: 0;
@@ -14,9 +12,7 @@ body {
   min-height: 100vh;
 }
 
-/* =====================
-   CHAT TOGGLE BUTTON
-===================== */
+/* chat toggle button*/
 
 .chat-toggle {
   position: fixed;
@@ -42,9 +38,7 @@ body {
   transform: scale(1.1);
 }
 
-/* =====================
-   CHAT WINDOW
-===================== */
+/* chat window */
 
 .chatbot-wrapper {
   position: fixed;
@@ -65,9 +59,7 @@ body {
   overflow: hidden;
 }
 
-/* =====================
-   HEADER
-===================== */
+/* header */
 
 .chatbot-header {
   background: black;
@@ -88,9 +80,7 @@ body {
   justify-content: center;
 }
 
-/* =========================
-   BOT OPTION BUTTONS
-========================= */
+/* bot options buttons */
 
 .options-wrapper {
     display: flex;
@@ -125,9 +115,7 @@ body {
 .option-btn:focus {
     outline: 2px solid #555;
 }
-/* =====================
-   MESSAGES
-===================== */
+/* message */
 
 .chatbot-messages {
   flex: 1;
@@ -181,9 +169,7 @@ body {
   border: 1px solid black;
 }
 
-/* =====================
-   TYPING
-===================== */
+/* typing*/
 
 .typing-indicator {
   display: flex;
@@ -211,9 +197,7 @@ body {
   50%{opacity:1}
 }
 
-/* =====================
-   INPUT
-===================== */
+/* input */
 
 .chatbot-input-container {
   padding: 10px;
@@ -246,9 +230,7 @@ body {
   cursor: pointer;
 }
 
-/* =====================
-   MOBILE
-===================== */
+/* mobile */
 
 @media (max-width:480px){
 

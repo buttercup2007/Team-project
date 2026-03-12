@@ -173,7 +173,7 @@ const chatbotKeywords = [
   {
     keywords: ["menu", "eten", "gerechten"],
     antwoord:
-      "U kunt ons menu bekijken op de website of ik kan enkele suggesties geven."
+      "U kunt ons menu bekijken op de website."
   },
   {
     keywords: ["openingstijd", "open", "uren"],
@@ -181,7 +181,7 @@ const chatbotKeywords = [
       "Ons restaurant is geopend van 08:00 tot 22:00 op weekdagen en 10:00 tot 22:00 in het weekend."
   },
   {
-    keywords: ["contact", "telefoon", "email", "adres"],
+    keywords: ["contact", "telefoon", "email", "adres", "bereiken", "vinden"],
     antwoord:
       "U kunt ons bereiken via info@restaurant.nl of bellen naar 012-3456789."
   },
