@@ -88,6 +88,43 @@ body {
   justify-content: center;
 }
 
+/* =========================
+   BOT OPTION BUTTONS
+========================= */
+
+.options-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.option-btn {
+    background: white;
+    color: black;
+    border: 1px solid black;
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.option-btn:hover {
+    background: black;
+    color: white;
+}
+
+/* click animation */
+.option-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* focus accessibility */
+.option-btn:focus {
+    outline: 2px solid #555;
+}
 /* =====================
    MESSAGES
 ===================== */
