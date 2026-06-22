@@ -1,5 +1,4 @@
 /* -- DOM -- */
-console.log("NEW SCRIPT.JS IS RUNNING");
 
 const messagesContainer = document.getElementById('messagesContainer');
 const messageInput = document.getElementById('messageInput');
@@ -10,6 +9,8 @@ const minimizeBtn = document.getElementById('minimizeBtn');
 
 const chatIcon = chatToggle.querySelector('.chat-icon');
 const closeIcon = chatToggle.querySelector('.close-icon');
+
+const STORAGE_KEY = "chatbot_messages";
 
 /* -- STATE -- */
 
@@ -93,6 +94,28 @@ sendButton.addEventListener('click', sendUserMessage);
 /* -- SEND MESSAGE -- */
 
 function sendUserMessage() {
+    if (window.waitingForClearConfirm) {
+    const text = messageInput.value.trim().toLowerCase();
+
+    if (input === "ja" || input === "yes") {
+        messagesContainer.innerHTML = "";
+        localStorage.removeItem(STORAGE_KEY);
+
+        window.waitingForClearConfirm = false;
+
+        addMessage("Chat geschiedenis verwijderd.", "bot");
+        return;
+    }
+
+    if (input === "nee" || input === "no") {
+        window.waitingForClearConfirm = false;
+        addMessage("Oké, ik heb niets verwijderd.", "bot");
+        return;
+    }
+
+    addMessage("Typ 'ja' of 'nee'.", "bot");
+    return;
+}
     const text = messageInput.value.trim();
     if (!text || isTyping) return;
 
@@ -180,7 +203,7 @@ function handleReservation(input) {
 
 /* -- MESSAGE SYSTEM -- */
 
-function addMessage(text, sender) {
+function addMessage(text, sender, save = true) {
 
     const wrapper = document.createElement('div');
     wrapper.className = `message-wrapper ${sender}`;
@@ -222,6 +245,34 @@ function addMessage(text, sender) {
     messagesContainer.appendChild(wrapper);
 
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    if (save) saveChat();
+}
+
+function saveChat() {
+    const messages = [];
+
+    document.querySelectorAll('.message-wrapper').forEach(wrapper => {
+        const text = wrapper.querySelector('p')?.textContent;
+        const sender = wrapper.classList.contains('user') ? 'user' : 'bot';
+
+        if (text) {
+            messages.push({ text, sender });
+        }
+    });
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+}
+
+function loadChat() {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (!data) return;
+
+    const messages = JSON.parse(data);
+
+    messages.forEach(msg => {
+        addMessage(msg.text, msg.sender, false);
+    });
 }
 
 /* -- TYPING -- */
@@ -247,8 +298,26 @@ function hideTyping() {
     document.getElementById('typing')?.remove();
 }
 
+const clearChatBtn = document.getElementById('clearChatBtn');
+
+clearChatBtn.addEventListener('click', () => {
+    const confirmDelete = confirm("Weet je zeker dat je de chat wilt verwijderen?");
+
+    if (confirmDelete) {
+        messagesContainer.innerHTML = "";
+        localStorage.removeItem(STORAGE_KEY);
+
+        addMessage("Chat is verwijderd.", "bot");
+    }
+});
+
 /* -- INIT -- */
 
 window.addEventListener('load', () => {
-    addMessage("Hallo! Waarmee kan ik je helpen?", "bot");
+    loadChat();
+
+    // alleen welcome als er nog niks is
+    if (messagesContainer.children.length === 0) {
+        addMessage("Hallo! Waarmee kan ik je helpen?", "bot");
+    }
 });
