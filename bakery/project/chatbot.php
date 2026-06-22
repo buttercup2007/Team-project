@@ -71,7 +71,7 @@ if (!isset($_SESSION['login'])) {
         </div>
     </div>
 
-    <script src="scriptTest.js"></script>
+    <script src="script.js"></script>
 
 </body>
 </html>
