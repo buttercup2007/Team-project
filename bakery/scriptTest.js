@@ -1,4 +1,5 @@
-/* --- dom elementen --- */
+/* -- DOM -- */
+
 const messagesContainer = document.getElementById("messagesContainer");
 const messageInput = document.getElementById("messageInput");
 const sendButton = document.getElementById("sendButton");
@@ -10,31 +11,46 @@ const clearChatBtn = document.getElementById("clearChatBtn");
 const chatIcon = chatToggle?.querySelector(".chat-icon");
 const closeIcon = chatToggle?.querySelector(".close-icon");
 
+/* -- STATE -- */
+
 let isOpen = false;
 
-/* --- open en close chats --- */
+let reservationState = null;
+
+let reservationData = {
+  people: "",
+  date: "",
+  time: ""
+};
+
+/* -- CHAT OPEN / CLOSE -- */
+
 chatToggle?.addEventListener("click", () => {
   isOpen = !isOpen;
+
   chatbotWrapper.style.display = isOpen ? "flex" : "none";
+
   if (chatIcon) chatIcon.style.display = isOpen ? "none" : "block";
   if (closeIcon) closeIcon.style.display = isOpen ? "block" : "none";
 });
 
 minimizeBtn?.addEventListener("click", () => {
   chatbotWrapper.style.display = "none";
+  isOpen = false;
+
   if (chatIcon) chatIcon.style.display = "block";
   if (closeIcon) closeIcon.style.display = "none";
-  isOpen = false;
 });
 
-/* --- input handling --- */
+/* -- INPUT -- */
+
 messageInput?.addEventListener("input", () => {
   messageInput.style.height = "auto";
   messageInput.style.height = messageInput.scrollHeight + "px";
   sendButton.disabled = !messageInput.value.trim();
 });
 
-messageInput?.addEventListener("keydown", e => {
+messageInput?.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
     sendUserMessage();
@@ -43,33 +59,137 @@ messageInput?.addEventListener("keydown", e => {
 
 sendButton?.addEventListener("click", sendUserMessage);
 
-/* --- storage --- */
-function saveMessages() {
-  const messages = [];
-  document.querySelectorAll("#messagesContainer .message-wrapper").forEach(wrapper => {
-    const sender = wrapper.classList.contains("user") ? "user" : "bot";
-    const text = wrapper.querySelector(".message-content p")?.textContent || "";
-    messages.push({ sender, text });
-  });
-  localStorage.setItem("chatMessages", JSON.stringify(messages));
+/* -- HELPERS: SMART MATCH -- */
+
+function normalize(text) {
+  return text
+    .toLowerCase()
+    .replace(/[?!.]/g, " ");
 }
 
-function loadMessages() {
-  const saved = localStorage.getItem("chatMessages");
-  if (saved) {
-    const messages = JSON.parse(saved);
-    messagesContainer.innerHTML = "";
-    messages.forEach(msg => addMessage(msg.text, msg.sender));
-  } else {
-    addMessage("Hallo! Waarmee kan ik je helpen?", "bot", [
-      "Menu bekijken",
-      "Reservatie maken",
-      "Openingstijden"
-    ]);
+function matchKeywords(input, keywords) {
+  return keywords.some((k) =>
+    input.includes(k) || input.split(" ").includes(k)
+  );
+}
+
+/* -- RESPONSES -- */
+
+const responses = [
+  {
+    keywords: ["menu", "eten", "gerechten", "kaart", "wat hebben jullie"],
+    answer: "Ons menu bevat verse broodjes, taarten en drankjes.",
+    options: ["Brood", "Taarten", "Dranken"]
+  },
+  {
+    keywords: ["opening", "open", "tijd", "wanneer open", "openingsuren"],
+    answer: "Wij zijn open van 08:00 tot 22:00 (weekdagen) en 10:00 tot 22:00 (weekend)."
+  },
+  {
+    keywords: ["contact", "telefoon", "email", "bereiken"],
+    answer: "Je kan ons bereiken via info@restaurant.nl of 012-3456789."
+  },
+  {
+    keywords: ["wifi", "internet"],
+    answer: "Gratis Wi-Fi beschikbaar in het hele restaurant."
+  }
+];
+
+/* -- RESERVATION TRIGGERS -- */
+
+const reservationTriggers = [
+  "reservatie",
+  "reserveren",
+  "reserve",
+  "tafel",
+  "boek",
+  "booking",
+  "afspraak"
+];
+
+/* -- RESERVATION FLOW -- */
+
+function handleReservation(input) {
+  if (!reservationState) {
+    reservationState = "people";
+    addMessage("Voor hoeveel personen is de reservatie?", "bot");
+    return true;
+  }
+
+  if (reservationState === "people") {
+    reservationData.people = input;
+    reservationState = "date";
+    addMessage("Welke datum wil je reserveren?", "bot");
+    return true;
+  }
+
+  if (reservationState === "date") {
+    reservationData.date = input;
+    reservationState = "time";
+    addMessage("Hoe laat wil je komen?", "bot");
+    return true;
+  }
+
+  if (reservationState === "time") {
+    reservationData.time = input;
+
+    addMessage(
+      `Top! Reservatie bevestigd voor ${reservationData.people} personen op ${reservationData.date} om ${reservationData.time}.`,
+      "bot"
+    );
+
+    reservationState = null;
+    reservationData = { people: "", date: "", time: "" };
+
+    return true;
   }
 }
 
-/* --- bericht toeoegen --- */
+/* -- SEND MESSAGE -- */
+
+function sendUserMessage() {
+  const text = messageInput.value.trim();
+  if (!text) return;
+
+  const input = normalize(text);
+
+  addMessage(text, "user");
+
+  messageInput.value = "";
+  messageInput.style.height = "auto";
+  sendButton.disabled = true;
+
+  showTyping();
+
+  setTimeout(() => {
+    hideTyping();
+
+    /* RESERVATION FIRST */
+    if (
+      reservationState ||
+      reservationTriggers.some((k) => input.includes(k))
+    ) {
+      if (handleReservation(text)) return;
+    }
+
+    /* NORMAL RESPONSES */
+    for (const item of responses) {
+      if (matchKeywords(input, item.keywords)) {
+        addMessage(item.answer, "bot", item.options || []);
+        return;
+      }
+    }
+
+    addMessage(
+      "Sorry, dat begrijp ik niet helemaal. Kun je het anders formuleren?",
+      "bot"
+    );
+
+  }, 600);
+}
+
+/* -- MESSAGE SYSTEM -- */
+
 function addMessage(text, sender, options = []) {
   const wrapper = document.createElement("div");
   wrapper.className = `message-wrapper ${sender}`;
@@ -78,7 +198,7 @@ function addMessage(text, sender, options = []) {
   message.className = `message ${sender}-message`;
 
   const avatar = document.createElement("div");
-  avatar.className = `message-avatar ${sender === "user" ? "user-avatar" : ""}`;
+  avatar.className = "message-avatar";
   avatar.textContent = sender === "user" ? "👤" : "🤖";
 
   const content = document.createElement("div");
@@ -89,29 +209,33 @@ function addMessage(text, sender, options = []) {
 
   const time = document.createElement("span");
   time.className = "message-time";
-  time.textContent = getCurrentTime();
+  time.textContent = new Date().toLocaleTimeString("nl-NL", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 
   content.appendChild(p);
   content.appendChild(time);
 
-  if (options.length && sender === "bot") {
-    const buttonsWrapper = document.createElement("div");
-    buttonsWrapper.className = "options-wrapper";
+  /* OPTIONS */
+  if (sender === "bot" && options.length) {
+    const wrap = document.createElement("div");
+    wrap.className = "options-wrapper";
 
-    options.forEach(option => {
+    options.forEach((opt) => {
       const btn = document.createElement("button");
       btn.className = "option-btn";
-      btn.textContent = option;
+      btn.textContent = opt;
 
-      btn.addEventListener("click", () => {
-        messageInput.value = option;
+      btn.onclick = () => {
+        messageInput.value = opt;
         sendUserMessage();
-      });
+      };
 
-      buttonsWrapper.appendChild(btn);
+      wrap.appendChild(btn);
     });
 
-    content.appendChild(buttonsWrapper);
+    content.appendChild(wrap);
   }
 
   if (sender === "user") {
@@ -126,98 +250,53 @@ function addMessage(text, sender, options = []) {
   messagesContainer.appendChild(wrapper);
 
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-  // Opslaan na toevoegen
-  saveMessages();
 }
 
-/* --- typing indictator --- */
-function showTypingIndicator() {
-  if (document.getElementById("typingIndicator")) return;
+/* -- TYPING -- */
 
-  const wrapper = document.createElement("div");
-  wrapper.className = "message-wrapper bot";
-  wrapper.id = "typingIndicator";
+function showTyping() {
+  if (document.getElementById("typing")) return;
 
-  wrapper.innerHTML = `
-  <div class="typing-indicator">
-    <span></span><span></span><span></span>
-  </div>
+  const typing = document.createElement("div");
+  typing.id = "typing";
+  typing.className = "message-wrapper bot";
+
+  typing.innerHTML = `
+    <div class="typing-indicator">
+      <span></span><span></span><span></span>
+    </div>
   `;
-  messagesContainer.appendChild(wrapper);
-  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+  messagesContainer.appendChild(typing);
 }
 
-function hideTypingIndicator() {
-  const indicator = document.getElementById("typingIndicator");
-  if (indicator) indicator.remove();
+function hideTyping() {
+  document.getElementById("typing")?.remove();
 }
 
-/* --- tijd --- */
-function getCurrentTime() {
-  return new Date().toLocaleTimeString("nl-NL", {
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-}
+/* -- CLEAR CHAT -- */
 
-/* --- chatbot antwoord --- */
-const chatbotKeywords = [
-  { keywords: ["allergie", "noten", "melk", "voedsel"], antwoord: "Ja, ons voedsel kan sporen van noten en melk bevatten. Laat het weten aan onze medewerkers als u allergieën heeft." },
-  { keywords: ["rapporteren", "klacht", "probleem", "feedback"], antwoord: "Als je iemand wilt rapporteren kan je ons online een bericht sturen of dit melden bij de receptie." },
-  { keywords: ["koffie", "koffiemachine", "espresso"], antwoord: "Plaats een beker in de koffiemachine en kies op het scherm welke koffie u wilt." },
-  { keywords: ["uitchecken", "checkout", "vertrekken"], antwoord: "Het restaurant sluit om 20:00 op weekdagen en 22:00 in het weekend." },
-  { keywords: ["reservatie", "reservering", "boeking", "tafel"], antwoord: "Ja! Het maximum voor een groep is 12 personen inclusief uzelf." },
-  { keywords: ["menu", "eten", "gerechten"], antwoord: "U kunt ons menu bekijken op de website." },
-  { keywords: ["openingstijd", "open", "uren"], antwoord: "Ons restaurant is geopend van 08:00 tot 22:00 op weekdagen en 10:00 tot 22:00 in het weekend." },
-  { keywords: ["contact", "telefoon", "email", "adres", "bereiken", "vinden"], antwoord: "U kunt ons bereiken via info@restaurant.nl of bellen naar 012-3456789." },
-  { keywords: ["wifi", "internet"], antwoord: "Er is gratis Wi-Fi beschikbaar. Het wachtwoord staat op uw tafelkaart." }
-];
-
-/* --- bericht verzenden--- */
-function sendUserMessage() {
-  const text = messageInput.value.trim();
-  if (!text) return;
-
-  addMessage(text, "user");
-
-  messageInput.value = "";
-  messageInput.style.height = "auto";
-  sendButton.disabled = true;
-
-  showTypingIndicator();
-
-  setTimeout(() => {
-    hideTypingIndicator();
-
-    const userText = text.toLowerCase();
-    let response = "Sorry, dat begrijp ik niet helemaal. Kun je je vraag anders formuleren?";
-
-    chatbotKeywords.some(item => {
-      return item.keywords.some(keyword => {
-        if (userText.includes(keyword)) {
-          response = item.antwoord;
-          return true;
-        }
-      });
-    });
-
-    addMessage(response, "bot");
-  }, 700);
-}
-
-/* --- chat wissen --- */
 clearChatBtn?.addEventListener("click", () => {
-  if (!confirm("Weet je zeker dat je de chat wilt wissen?")) return;
+  if (!confirm("Chat wissen?")) return;
 
   messagesContainer.innerHTML = "";
-  localStorage.removeItem("chatMessages");
+
+  reservationState = null;
+  reservationData = { people: "", date: "", time: "" };
+
   addMessage("Hallo! Waarmee kan ik je helpen?", "bot", [
-    "Menu bekijken",
-    "Reservatie maken",
+    "Menu",
+    "Reservatie",
     "Openingstijden"
   ]);
 });
 
-/* --- init --- */
-window.addEventListener("load", loadMessages);
+/* -- INIT -- */
+
+window.addEventListener("load", () => {
+  addMessage("Hallo! Waarmee kan ik je helpen?", "bot", [
+    "Menu",
+    "Reservatie",
+    "Openingstijden"
+  ]);
+});

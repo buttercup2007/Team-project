@@ -1,12 +1,8 @@
 <?php
 session_start();
 
-// Temporary: allow access without login
-// $_SESSION['login'] = true; // uncomment to auto-login
-
-if (!isset($_SESSION['login'])) { 
-    echo "Access denied. Skipping login for testing...";
-    $_SESSION['login'] = true; // auto-set login
+if (!isset($_SESSION['login'])) {
+    $_SESSION['login'] = true;
 }
 ?>
 
@@ -19,52 +15,63 @@ if (!isset($_SESSION['login'])) {
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
     <!-- Floating Chat Button -->
     <button id="chatToggle" class="chat-toggle">
         <span class="chat-icon">💬</span>
-        <span class="close-icon" style="display: none;">✕</span>
+        <span class="close-icon" style="display:none;">✕</span>
     </button>
 
-    <button id="clearChatBtn" title="Clear chat">delete</button>
+    <!-- Clear Chat -->
+    <button id="clearChatBtn" title="Clear chat">
+        Delete
+    </button>
 
-
-    <!-- Chatbot Widget -->
-    <div class="chatbot-wrapper" id="chatbotWrapper" style="display: none;">
+    <!-- Chat Widget -->
+    <div class="chatbot-wrapper" id="chatbotWrapper" style="display:none;">
         <div class="chatbot-container">
+
             <div class="chatbot-header">
                 <div class="header-content">
                     <div class="bot-avatar">🤖</div>
+
                     <div class="header-info">
                         <h1>Chatbot</h1>
                     </div>
                 </div>
+
+                <!-- Optional minimize button -->
+                <button id="minimizeBtn">−</button>
             </div>
 
-            <div class="chatbot-messages" id="messagesContainer">
-                <div class="message-wrapper bot">
-                    <div class="message bot-message">
-                        <div class="message-content">
-                            <span class="message-time"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- IMPORTANT: Empty container -->
+            <div class="chatbot-messages" id="messagesContainer"></div>
 
             <div class="chatbot-input-container">
                 <div class="input-wrapper">
+
                     <textarea
                         id="messageInput"
                         class="chatbot-input"
-                        placeholder="Typ je berichten..."
+                        placeholder="Typ je bericht..."
                         rows="1"
                     ></textarea>
-                    <button id="sendButton" class="send-button" disabled>
+
+                    <button
+                        id="sendButton"
+                        class="send-button"
+                        disabled
+                    >
+                        Send
                     </button>
+
                 </div>
             </div>
+
         </div>
     </div>
 
     <script src="scriptTest.js"></script>
+
 </body>
 </html>
