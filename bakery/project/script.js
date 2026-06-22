@@ -23,6 +23,37 @@ let reservationData = {
     time: ""
 };
 
+/* -- INTENT DETECTION -- */
+
+function detectIntent(input) {
+    const text = input.toLowerCase();
+
+    const reservationKeywords = [
+        "reservatie", "reserveren", "reservering",
+        "tafel", "booking", "afspraak",
+        "ik wil een tafel", "tafel reserveren"
+    ];
+
+    const menuKeywords = [
+        "menu", "eten", "kaart", "gerechten", "wat hebben jullie"
+    ];
+
+    const contactKeywords = [
+        "contact", "email", "telefoon", "bereiken"
+    ];
+
+    const wifiKeywords = [
+        "wifi", "internet"
+    ];
+
+    if (reservationKeywords.some(k => text.includes(k))) return "reservation";
+    if (menuKeywords.some(k => text.includes(k))) return "menu";
+    if (contactKeywords.some(k => text.includes(k))) return "contact";
+    if (wifiKeywords.some(k => text.includes(k))) return "wifi";
+
+    return "unknown";
+}
+
 /* -- CHAT OPEN / CLOSE -- */
 
 chatToggle.addEventListener('click', () => {
@@ -75,50 +106,34 @@ function sendUserMessage() {
     setTimeout(() => {
         hideTyping();
 
-        const input = text.toLowerCase();
+        const intent = detectIntent(text);
 
-        /* RESERVATION FLOW FIRST */
-        if (
-            reservationState ||
-            input.includes("reserver") ||
-            input.includes("booking") ||
-            input.includes("reservatie") ||
-            input.includes("reservering") ||
-            input.includes("tafel") ||
-            input.includes("booking")
-
-        ) {
-            if (handleReservation(text)) return;
+        /* RESERVATION FLOW */
+        if (intent === "reservation" || reservationState) {
+            handleReservation(text);
+            return;
         }
 
-        /* NORMAL RESPONSES */
-        const responses = [
-            {
-                keywords: ["menu", "eten", "kaart", "gerechten"],
-                answer: "Ons menu bevat verse broodjes, taarten en drankjes."
-            },
-            {
-                keywords: ["opening", "open", "tijd"],
-                answer: "Wij zijn open van 08:00 tot 22:00."
-            },
-            {
-                keywords: ["contact", "email", "telefoon"],
-                answer: "Je kan ons bereiken via info@restaurant.nl"
-            },
-            {
-                keywords: ["wifi", "internet"],
-                answer: "Wij hebben gratis WiFi in het hele restaurant."
-            }
-        ];
-
-        for (const r of responses) {
-            if (r.keywords.some(k => input.includes(k))) {
-                addMessage(r.answer, 'bot');
-                return;
-            }
+        /* MENU */
+        if (intent === "menu") {
+            addMessage("Ons menu bevat verse broodjes, taarten en drankjes.", "bot");
+            return;
         }
 
-        addMessage("Sorry, dat begrijp ik niet helemaal. Kun je het anders zeggen?", 'bot');
+        /* CONTACT */
+        if (intent === "contact") {
+            addMessage("Je kan ons bereiken via info@restaurant.nl", "bot");
+            return;
+        }
+
+        /* WIFI */
+        if (intent === "wifi") {
+            addMessage("Wij hebben gratis WiFi in het hele restaurant.", "bot");
+            return;
+        }
+
+        /* FALLBACK */
+        addMessage("Sorry, ik begrijp je vraag niet helemaal. Kun je het anders formuleren?", "bot");
 
     }, 600);
 }
@@ -163,7 +178,7 @@ function handleReservation(input) {
     }
 }
 
-/* -- MESSAGES -- */
+/* -- MESSAGE SYSTEM -- */
 
 function addMessage(text, sender) {
 
